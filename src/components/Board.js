@@ -174,30 +174,35 @@ const Board = (props) => {
   };
 
   const handleLeftClick = (x, y) => {
-    if (boardData[x][y].revealed) {
-      return null;
-    }
-    if (boardData[x][y].isMine) {
-      setWin(false);
-      revealBoard();
-      setGameMessage(true);
-    }
-    let updatedData = boardData;
-    updatedData[x][y].flagged = false;
-    updatedData[x][y].revealed = true;
+    if (!gameIsPlaying) {
+      setPlayGame(true);
+    } else {
+      if (boardData[x][y].revealed) {
+        return null;
+      }
+      if (boardData[x][y].isMine) {
+        setWin(false);
+        revealBoard();
+        setGameMessage(true);
+        setGameIsPlaying(false);
+      }
+      let updatedData = boardData;
+      updatedData[x][y].flagged = false;
+      updatedData[x][y].revealed = true;
 
-    if (updatedData[x][y].empty) {
-      updatedData = revealEmptyCells(updatedData, x, y);
+      if (updatedData[x][y].empty) {
+        updatedData = revealEmptyCells(updatedData, x, y);
+      }
+      if (getHidden(updatedData).length === props.numberOfMines) {
+        revealBoard();
+        setWin(true);
+        setGameIsPlaying(false);
+        setGameMessage(true);
+      }
+      setBoardData(updatedData);
+      setMineCount(props.numberOfMines - getFlags(updatedData).length);
+      setTrigger(trigger + 1);
     }
-    if (getHidden(updatedData).length === props.numberOfMines) {
-      revealBoard();
-      setWin(true);
-      setGameIsPlaying(false);
-      setGameMessage(true);
-    }
-    setBoardData(updatedData);
-    setMineCount(props.numberOfMines - getFlags(updatedData).length);
-    setTrigger(trigger + 1);
   };
 
   const startGame = () => {
