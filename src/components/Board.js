@@ -7,6 +7,8 @@ const Board = (props) => {
   const [win, setWin] = useState(false);
   const [playGame, setPlayGame] = useState(true);
   const [gameMessage, setGameMessage] = useState(false);
+  const [trigger, setTrigger] = useState(0);
+  const [gameIsPlaying, setGameIsPlaying] = useState(false);
 
   const createEmptyArray = (height, width) => {
     let data = [];
@@ -24,6 +26,7 @@ const Board = (props) => {
         };
       }
     }
+
     return data;
   };
 
@@ -162,6 +165,8 @@ const Board = (props) => {
       if (JSON.stringify(mineArray) === JSON.stringify(flagArray)) {
         revealBoard();
         setWin(true);
+        setGameIsPlaying(false);
+        setGameMessage(true);
       }
     }
     setBoardData(updatedData);
@@ -169,10 +174,11 @@ const Board = (props) => {
   };
 
   const handleLeftClick = (x, y) => {
-    if (boardData[x][y].revealed || boardData[x][y].flagged) {
-      return boardData[x][y].revealed = true
+    if (boardData[x][y].revealed) {
+      return null;
     }
     if (boardData[x][y].isMine) {
+      setWin(false);
       revealBoard();
       setGameMessage(true);
     }
@@ -186,9 +192,12 @@ const Board = (props) => {
     if (getHidden(updatedData).length === props.numberOfMines) {
       revealBoard();
       setWin(true);
+      setGameIsPlaying(false);
+      setGameMessage(true);
     }
     setBoardData(updatedData);
     setMineCount(props.numberOfMines - getFlags(updatedData).length);
+    setTrigger(trigger + 1);
   };
 
   const startGame = () => {
@@ -196,6 +205,7 @@ const Board = (props) => {
     setGameMessage(false);
     setPlayGame(false);
     setMineCount(props.numberOfMines);
+    setGameIsPlaying(true);
   };
 
   const renderBoard = (data) => {
@@ -218,7 +228,7 @@ const Board = (props) => {
   return (
     <div>
       {gameMessage && (
-        <div className='status'>{win ? 'You Win' : 'Game Over!'}</div>
+        <div className='status'>{win ? 'You Win!' : 'Game Over!'}</div>
       )}
       {!gameMessage && (
         <div className='status'>Mines remaining: {mineCount}</div>
